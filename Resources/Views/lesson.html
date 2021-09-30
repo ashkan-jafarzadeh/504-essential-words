@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+{% if p.lesson != None %}
+	<h2>Lesson: {{ p.lesson }}</h2>
+{% endif %}
+<div id="accordion">
+	{% for word in p.words -%}
+	<div class="card">
+		<div class="card-header" id="heading{{ word.id }}">
+			<h5 class="mb-0">
+				{{ word.id }}
+				<button class="btn btn-link" data-toggle="collapse" data-target="#item{{ word.id }}"
+						aria-expanded="false" aria-controls="item{{ word.id }}">
+					{{ word.title }}
+				</button>
+				<span data-id="{{ word.id }}" style="color: #aaaaaa; cursor: pointer"
+					  class="fa fa-star {% if word.is_bookmarked == 1 %} stared {% endif %}"></span>
+			</h5>
+		</div>
+		<div id="item{{ word.id }}" class="collapse" aria-labelledby="heading{{ word.id }}" data-parent="#accordion">
+			<div class="card-body">
+				<div style="margin-bottom: 20px" class="card">
+					<div class="card-header">Definitions:</div>
+					<div class="card-body">
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">{{ word.definition }}</li>
+							<li class="list-group-item persian">{{ word.definition_trans }}</li>
+						</ul>
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-header">Examples:</div>
+					<div class="card-body">
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item">{{ word.first_example }}</li>
+							<li class="list-group-item persian">{{ word.first_example_trans }}</li>
+							<li class="list-group-item">{{ word.second_example }}</li>
+							<li class="list-group-item persian">{{ word.second_example_trans }}</li>
+							<li class="list-group-item">{{ word.third_example }}</li>
+							<li class="list-group-item persian">{{ word.third_example_trans }}</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(".fa-star").click(function (e) {
+        if ($(this).hasClass("stared")) {
+            bookmark($(this), 0)
+        } else {
+            bookmark($(this), 1)
+        }
+    });
+
+    function bookmark(element, flag) {
+        id = element.attr("data-id");
+        axios({
+            method : "post",
+            url    : "/api/lesson/bookmark",
+            data   : {flag: flag, word: id},
+            headers: {"Content-Type": "application/json"},
+        })
+            .then(function (response) {
+                if (response.data.result === "success") {
+                    if (flag) {
+                        element.addClass("stared")
+                    } else {
+                        element.removeClass("stared")
+                    }
+                }
+            })
+            .catch(function (response) {
+            });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,5 @@
+inflect
+mysql-connector-python
+terminaltables
+jinja2
+werkzeug
